@@ -4,11 +4,13 @@ To run:
 
 - Install [cabal](http://www.haskell.org/cabal/) if you have not already
 - Install Elm
+
     ```bash
     cabal install elm
     cabal install elm-server
     ```
 - Run elm-server
+
     ```bash
     elm-server
     ```
