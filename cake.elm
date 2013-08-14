@@ -2,12 +2,18 @@ import Window
 import Mouse
 import Random
 
-tick = (every second)
-random1 = Random.range 0 1000 tick
-random2 = Random.range 0 1000 tick
-randomPos = lift2 (,) random1 random2
+(gameWidth, gameHeight) = (800, 500)
 
-clickPos = sampleOn Mouse.clicks Mouse.position
+dist (x,y) (x',y') = sqrt <| (x-x')^2 + (y-y')^2
+
+randomPos = 
+    let tick = (every second)
+        randX = (Random.range 20 gameWidth tick)
+        randY = (Random.range 20 gameHeight tick)
+    in lift2 (,) randX randY
+
+currentClick = sampleOn Mouse.clicks Mouse.position
+clickedCoords = foldp (::) [] currentClick
 
 cakeCoords = foldp (::) [] randomPos
 
@@ -17,9 +23,10 @@ makeCakeAt w h (x, y) =
         |> toForm 
         |> move (toFloat x - toFloat w / 2, toFloat h / 2 - toFloat y)
 
-display (w,h) cakeCoords = 
+display (w,h) cakeCoords click = 
     let makeCake = makeCakeAt w h
-    in  collage w h <| map makeCake cakeCoords
+        filterCakes = filter (\pos -> (dist click pos) > 30) cakeCoords
+    in  collage w h <| map makeCake filterCakes
 
 main =
-    display <~ Window.dimensions ~ cakeCoords
+    display <~ Window.dimensions ~ cakeCoords ~ currentClick
