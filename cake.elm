@@ -5,6 +5,7 @@ import Random
 -- DEFINITIONS
 
 (gameWidth, gameHeight) = (800, 500)
+maxCakes = 10
 
 type State = { cakes:[(Int,Int)] }
 type Input = { newCake:(Int,Int), click:(Int,Int)}
@@ -32,8 +33,11 @@ isNotTooClose p1 p2 =
 
 update : Input -> State -> State
 update input oldState = 
-    let filteredCakes = filter (isNotTooClose input.click) oldState.cakes
-    in {oldState | cakes <- input.newCake::filteredCakes}
+    let newCakes = if length oldState.cakes < maxCakes 
+                    then input.newCake::oldState.cakes
+                    else oldState.cakes
+        filteredCakes = filter (isNotTooClose input.click) newCakes
+    in {oldState | cakes <- filteredCakes}
 
 currentCakes : Signal State
 currentCakes = foldp update {cakes=[]} input
