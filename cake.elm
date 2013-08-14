@@ -1,9 +1,15 @@
 import Window
 import Mouse
+import Random
+
+tick = (every second)
+random1 = Random.range 0 1000 tick
+random2 = Random.range 0 1000 tick
+randomPos = lift2 (,) random1 random2
 
 clickPos = sampleOn Mouse.clicks Mouse.position
 
-cakeCoords = foldp (::) [] clickPos
+cakeCoords = foldp (::) [] randomPos
 
 makeCakeAt w h (x, y) = 
     image 500 573 "/cake.gif" 
