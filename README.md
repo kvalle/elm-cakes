@@ -1,8 +1,9 @@
-Just playing around with [Elm](http://elm-lang.org).
+Exploring [functional reactive programming](http://en.wikipedia.org/wiki/Functional_reactive_programming) in [Elm](http://elm-lang.org) with tasty, tasty cakes.
 
-To run the example:
+To run:
 
-- Install Elm (assuming [cabal]() is already installed):
+- Install [cabal](http://www.haskell.org/cabal/) if you have not already
+- Install Elm
     ```bash
     cabal install elm
     cabal install elm-server
@@ -11,4 +12,4 @@ To run the example:
     ```bash
     elm-server
     ```
-- And go to [http://localhost:8000/cake.elm](http://localhost:8000/cake.elm).
+- Go to [http://localhost:8000/cake.elm](http://localhost:8000/cake.elm)
