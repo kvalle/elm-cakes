@@ -7,46 +7,40 @@ import Random
 (gameWidth, gameHeight) = (800, 500)
 maxCakes = 10
 
-data Input = Click (Int,Int) | Random (Int,Int)
+type Pos = (Int, Int)
+type State = { cakes:[Pos] }
 
-type State = { cakes:[(Int,Int)] }
-type GameInput = { newCake:(Int,Int), click:(Int,Int)}
+data Input pos = Click pos | Rand pos
 
 -- SIGNALS
 
-randomPos : Signal (Int,Int)
+randomPos : Signal Pos
 randomPos = 
     let tick = (every second)
         randX = (Random.range 20 gameWidth tick)
         randY = (Random.range 20 gameHeight tick)
     in lift2 (,) randX randY
 
-input : Signal GameInput
-input =
-    let currentClick = sampleOn Mouse.clicks Mouse.position
-        mergeInputs p c = {newCake=p, click=c}
-    in mergeInputs <~ randomPos ~ currentClick
+input : Signal (Input (Int, Int))
+input = 
+    let clicks = (\pos -> Click pos) <~ sampleOn Mouse.clicks Mouse.position
+        randoms = (\pos -> Rand pos) <~ randomPos
+    in merge clicks randoms
 
-input2 : Signal GameInput
-input2 =
-    let currentClick = sampleOn Mouse.clicks Mouse.position
-        mergeInputs p c = {newCake=p, click=c}
-    in mergeInputs <~ randomPos ~ currentClick
-
-isNotTooClose : (Int,Int) -> (Int,Int) -> Bool
+isNotTooClose : Pos -> Pos -> Bool
 isNotTooClose p1 p2 =
     let dist (x,y) (x',y') = sqrt <| (x-x')^2 + (y-y')^2
         distance = dist p1 p2
     in distance > 45
 
-update : GameInput -> State -> State
+update : Input Pos -> State -> State
 update input oldState = 
-    let newCakes = if length oldState.cakes < maxCakes 
-                    then input.newCake::oldState.cakes
-                    else oldState.cakes
-        filteredCakes = filter (isNotTooClose input.click) newCakes
-    in {oldState | cakes <- filteredCakes}
-
+    case input of 
+        Click pos -> { oldState | cakes <- filter (isNotTooClose pos) oldState.cakes }
+        Rand pos -> if length oldState.cakes < maxCakes 
+                    then { oldState | cakes <- pos::oldState.cakes }
+                    else oldState
+            
 currentCakes : Signal State
 currentCakes = foldp update {cakes=[]} input
 
