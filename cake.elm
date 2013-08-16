@@ -7,8 +7,10 @@ import Random
 (gameWidth, gameHeight) = (800, 500)
 maxCakes = 10
 
+data Input = Click (Int,Int) | Random (Int,Int)
+
 type State = { cakes:[(Int,Int)] }
-type Input = { newCake:(Int,Int), click:(Int,Int)}
+type GameInput = { newCake:(Int,Int), click:(Int,Int)}
 
 -- SIGNALS
 
@@ -19,8 +21,14 @@ randomPos =
         randY = (Random.range 20 gameHeight tick)
     in lift2 (,) randX randY
 
-input : Signal Input
+input : Signal GameInput
 input =
+    let currentClick = sampleOn Mouse.clicks Mouse.position
+        mergeInputs p c = {newCake=p, click=c}
+    in mergeInputs <~ randomPos ~ currentClick
+
+input2 : Signal GameInput
+input2 =
     let currentClick = sampleOn Mouse.clicks Mouse.position
         mergeInputs p c = {newCake=p, click=c}
     in mergeInputs <~ randomPos ~ currentClick
@@ -31,7 +39,7 @@ isNotTooClose p1 p2 =
         distance = dist p1 p2
     in distance > 45
 
-update : Input -> State -> State
+update : GameInput -> State -> State
 update input oldState = 
     let newCakes = if length oldState.cakes < maxCakes 
                     then input.newCake::oldState.cakes
