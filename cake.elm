@@ -1,15 +1,18 @@
 import Window
 import Mouse
 import Random
+import Color
 
--- DEFINITIONS
+-- SETTINGS
 
 (gameWidth, gameHeight) = (800, 500)
 maxCakes = 10
 cakeSize = 45
 
+-- DEFINITIONS
+
 type Pos = (Int, Int)
-type State = { cakes:[Pos] }
+type State = { cakes:[Pos], num:Int }
 
 data Input pos = Click pos | Rand pos
 
@@ -27,7 +30,7 @@ input =
 -- GAME UPDATE
 
 initialState : State
-initialState = {cakes=[]}
+initialState = { cakes=[], num=0 }
 
 isNotTooClose : Pos -> Pos -> Bool
 isNotTooClose p1 p2 =
@@ -38,7 +41,10 @@ isNotTooClose p1 p2 =
 update : Input Pos -> State -> State
 update input state = 
     case input of 
-        Click pos -> { state | cakes <- filter (isNotTooClose pos) state.cakes }
+        Click pos -> let filteredCakes = filter (isNotTooClose pos) state.cakes
+                         cakesClicked = (length state.cakes) - (length filteredCakes)
+                     in { state | cakes <- filteredCakes
+                                , num <- state.num + cakesClicked }
         Rand pos -> if length state.cakes < maxCakes 
                     then { state | cakes <- pos::state.cakes }
                     else state
@@ -46,13 +52,11 @@ update input state =
 -- DISPLAY
 
 display : Pos -> State -> Element
-display (w,h) {cakes} = 
-    let makeCake (x, y) = 
-            image 500 573 "/cake.gif" 
-                |> width cakeSize 
-                |> toForm 
-                |> move (toFloat x - toFloat w / 2, toFloat h / 2 - toFloat y)
-    in collage w h <| map makeCake cakes
+display (w,h) {cakes,num} = 
+    let moveTo x y = move (toFloat x - toFloat w / 2, toFloat h / 2 - toFloat y)
+        makeCake (x, y) = image 500 573 "/cake.gif" |> width cakeSize |> toForm |> moveTo x y
+    in layers [collage w h <| map makeCake cakes
+              , plainText <| "cakes: " ++ (show num) ]
 
 -- MAIN
 
