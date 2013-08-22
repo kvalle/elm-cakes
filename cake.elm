@@ -51,8 +51,8 @@ update input state =
             
 -- DISPLAY
 
-display : Pos -> State -> Element
-display (w,h) {cakes,num} = 
+display : State -> Element
+display {cakes,num} = 
     let moveTo x y = move (toFloat x - toFloat gameWidth / 2, toFloat gameHeight / 2 - toFloat y)
         makeCake (x, y) = image 1214 1214 "/cake.png" |> width cakeSize |> toForm |> moveTo x y
         line =  { defaultLine | width <- 10 }
@@ -65,4 +65,4 @@ display (w,h) {cakes,num} =
 
 main =
     let state = foldp update initialState input
-    in  display <~ Window.dimensions ~ state
+    in  display <~ state
