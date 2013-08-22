@@ -6,6 +6,7 @@ import Color
 -- SETTINGS
 
 (gameWidth, gameHeight) = (800, 500)
+gameMargin = 30
 maxCakes = 10
 cakeSize = 49
 
@@ -21,8 +22,8 @@ data Input pos = Click pos | Rand pos
 input : Signal (Input Pos)
 input = 
     let tick = (every second)
-        randX = (Random.range 20 gameWidth tick)
-        randY = (Random.range 20 gameHeight tick)
+        randX = (Random.range gameMargin (gameWidth - gameMargin) tick)
+        randY = (Random.range gameMargin (gameHeight - gameMargin) tick)
         clicks = Click <~ sampleOn Mouse.clicks Mouse.position
         randoms = lift Rand <| (,) <~ randX ~ randY
     in merge clicks randoms
@@ -51,18 +52,22 @@ update input state =
             
 -- DISPLAY
 
-display : State -> Element
-display {cakes,num} = 
+display : State -> Pos -> Element
+display {cakes,num} mouse = 
     let moveTo x y = move (toFloat x - toFloat gameWidth / 2, toFloat gameHeight / 2 - toFloat y)
-        makeCake (x, y) = image 1214 1214 "/cake.png" |> width cakeSize |> toForm |> moveTo x y
+        makeCake (x, y) = 
+            let img = if notTooClose mouse (x, y) 
+                      then "/cake.png"
+                      else "/cake-green.png"
+            in image 1214 1214 img |> width cakeSize |> toForm |> moveTo x y
         line =  { defaultLine | width <- 10 }
         border = rect (toFloat gameWidth) (toFloat gameHeight) |> outlined line
         cakePics = map makeCake cakes
         gameScore = "# cakes: " ++ (show num) |> plainText |> toForm
     in collage gameWidth gameHeight <| gameScore::border::cakePics
 
--- MAINsolid Color.green
+-- MAIN
 
 main =
     let state = foldp update initialState input
-    in  display <~ state
+    in  display <~ state ~ Mouse.position
