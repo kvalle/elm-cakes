@@ -15,3 +15,7 @@ To run:
     elm-server
     ```
 - Go to [http://localhost:8000/cake.elm](http://localhost:8000/cake.elm)
+
+~~~
+
+Credit: Cake icon from <http://xaonon.dyndns.org/logos/>

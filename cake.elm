@@ -7,7 +7,7 @@ import Color
 
 (gameWidth, gameHeight) = (800, 500)
 maxCakes = 10
-cakeSize = 45
+cakeSize = 49
 
 -- DEFINITIONS
 
@@ -32,8 +32,8 @@ input =
 initialState : State
 initialState = { cakes=[], num=0 }
 
-isNotTooClose : Pos -> Pos -> Bool
-isNotTooClose p1 p2 =
+notTooClose : Pos -> Pos -> Bool
+notTooClose p1 p2 =
     let dist (x,y) (x',y') = sqrt <| (x-x')^2 + (y-y')^2
         distance = dist p1 p2
     in distance > cakeSize
@@ -41,7 +41,7 @@ isNotTooClose p1 p2 =
 update : Input Pos -> State -> State
 update input state = 
     case input of 
-        Click pos -> let filteredCakes = filter (isNotTooClose pos) state.cakes
+        Click pos -> let filteredCakes = filter (notTooClose pos) state.cakes
                          cakesClicked = (length state.cakes) - (length filteredCakes)
                      in { state | cakes <- filteredCakes
                                 , num <- state.num + cakesClicked }
@@ -54,7 +54,7 @@ update input state =
 display : Pos -> State -> Element
 display (w,h) {cakes,num} = 
     let moveTo x y = move (toFloat x - toFloat w / 2, toFloat h / 2 - toFloat y)
-        makeCake (x, y) = image 500 573 "/cake.gif" |> width cakeSize |> toForm |> moveTo x y
+        makeCake (x, y) = image 1214 1214 "/cake.png" |> width cakeSize |> toForm |> moveTo x y
     in layers [collage w h <| map makeCake cakes
               , plainText <| "cakes: " ++ (show num) ]
 
