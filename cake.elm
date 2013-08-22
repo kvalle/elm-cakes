@@ -53,12 +53,15 @@ update input state =
 
 display : Pos -> State -> Element
 display (w,h) {cakes,num} = 
-    let moveTo x y = move (toFloat x - toFloat w / 2, toFloat h / 2 - toFloat y)
+    let moveTo x y = move (toFloat x - toFloat gameWidth / 2, toFloat gameHeight / 2 - toFloat y)
         makeCake (x, y) = image 1214 1214 "/cake.png" |> width cakeSize |> toForm |> moveTo x y
-    in layers [collage w h <| map makeCake cakes
-              , plainText <| "cakes: " ++ (show num) ]
+        line =  { defaultLine | width <- 10 }
+        border = rect (toFloat gameWidth) (toFloat gameHeight) |> outlined line
+        cakePics = map makeCake cakes
+        gameScore = "# cakes: " ++ (show num) |> plainText |> toForm
+    in collage gameWidth gameHeight <| gameScore::border::cakePics
 
--- MAIN
+-- MAINsolid Color.green
 
 main =
     let state = foldp update initialState input
